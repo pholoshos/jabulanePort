@@ -35,6 +35,8 @@
     name: "",
   };
 
+  let updateData = {};
+
   const makeNullOjectfromCollections = (/** @type {any[]} */ collections) => {
     let nullObject = {};
     collections.forEach((collection) => {
@@ -102,8 +104,9 @@
   };
 
   const onUpdateCollectionData = (/** @type {string} */ id) => {
+    console.log("LOG:::id", id);
     generalApi
-      .put("/" + selectedEntity + "/" + id)
+      .put("/" + selectedEntity + "/" + id, updateData)
       .then((res) => {
         getCollectionData(selectedEntity);
       })
@@ -123,13 +126,13 @@
       });
   };
 
-  const saveData = ()=>{
-    if(!newEnityName){
+  const saveData = () => {
+    if (!newEnityName) {
       alert("Please enter a name for the entity");
       return;
     }
     generalApi
-      .post("/"+newEnityName, newData)
+      .post("/" + newEnityName, newData)
       .then((res) => {
         getCollectionData(newEnityName);
         isAdd = false;
@@ -137,7 +140,7 @@
       .catch((er) => {
         console.log("LOG:::er", er);
       });
-  }
+  };
 
   const checkType = (/** @type {any} */ value) => {
     if (typeof value === "object") {
@@ -277,15 +280,16 @@
                 <button
                   class="btn btn-sm"
                   on:click={() => onDeleteCollectionData(collection?.id)}
-                  ><Trash />delete</button
+                  ><Trash />delete</button                                                                                                                                                          
                 >
-                <button class="btn btn-sm"
-                  ><Pencil1
-                    on:click={() => onUpdateCollectionData(collection?.id)}
-                  />update</button
+                <button
+                  on:click={() => onUpdateCollectionData(collection?.id)}
+                  class="btn btn-sm"><Pencil1 />update</button
                 >
               </div>
-              <pre prefix=""><code contenteditable="true"
+              <pre prefix=""><code on:input={(event)=>{
+                updateData = event?.target.textContent;
+              }} contenteditable="true"
                   >{JSON.stringify(collection, null, "\t")}</code
                 ></pre>
             </div>
