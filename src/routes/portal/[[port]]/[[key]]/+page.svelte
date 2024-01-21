@@ -28,6 +28,7 @@
   let workingCollectionData = [];
 
   let newData = {};
+  let newEnityName = "";
 
   let newProperty = {
     value: "",
@@ -82,7 +83,6 @@
         collectionData = res.data;
         workingCollectionData = res.data;
         columns = Object.keys(res.data[0]);
-        console.log("LOG:::res", collectionData);
       })
       .catch((er) => {
         console.log("LOG:::er", er);
@@ -123,6 +123,22 @@
       });
   };
 
+  const saveData = ()=>{
+    if(!newEnityName){
+      alert("Please enter a name for the entity");
+      return;
+    }
+    generalApi
+      .post("/"+newEnityName, newData)
+      .then((res) => {
+        getCollectionData(newEnityName);
+        isAdd = false;
+      })
+      .catch((er) => {
+        console.log("LOG:::er", er);
+      });
+  }
+
   const checkType = (/** @type {any} */ value) => {
     if (typeof value === "object") {
       return JSON.stringify(value);
@@ -146,10 +162,17 @@
     <h1 class="text-lg font-bold mt-3">JabulaneDB</h1>
   </div>
   <p>Your data matters on : http://localhost:{port}</p>
-  
+
   {#if isAdd}
     <div>
-      <button class="btn" on:click={() => (isAdd = false)}>Go Back</button>
+      <div class="flex space-x-2">
+        <button class="btn" on:click={() => (isAdd = false)}>Go Back</button>
+        <input
+          bind:value={newEnityName}
+          class="input border-gray-500 input-bordered w-full max-w-xs"
+          placeholder="Entity name"
+        />
+      </div>
 
       <div class="flex mt-5 space-x-2">
         <input
@@ -167,6 +190,13 @@
           on:click={() => {
             newData = { ...newData, [newProperty.name]: newProperty.value };
           }}>Append property</button
+        >
+
+        <button
+          class="btn bg-green-500"
+          on:click={() => {
+            saveData();
+          }}>Save Data</button
         >
       </div>
       <div class="mockup-code mt-2">
@@ -193,7 +223,7 @@
             <option value={entity} class="">{entity}</option>
           {/each}
         </select>
-    
+
         <input
           class="input border-gray-500 input-bordered w-full max-w-xs"
           bind:value={searchText}
@@ -204,12 +234,13 @@
         <button
           on:click={() => {
             newData = makeNullOjectfromCollections(columns);
+            newEnityName = selectedEntity;
             isAdd = true;
           }}
           class="btn"><PlusCircled /> Add Data</button
         >
       </div>
-      
+
       {#if !collectionData}
         <span class="loading loading-ring loading-lg"></span>
       {/if}
