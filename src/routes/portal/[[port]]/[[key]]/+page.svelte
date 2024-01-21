@@ -18,6 +18,8 @@
   let selectedEntity = "";
   let searchText = "";
   let isAdd = false;
+
+  let isLoading = false;
   /**
    * @type {any[]}
    */
@@ -67,11 +69,12 @@
   };
 
   const fetchEntities = () => {
+    isLoading = true;
     generalApi
       .get("/db/collections")
       .then((res) => {
         entities = res.data;
-        console.log("LOG:::res", res.data);
+        isLoading = false;
       })
       .catch((er) => {
         console.log("LOG:::er", er);
@@ -79,9 +82,11 @@
   };
 
   const getCollectionData = (/** @type {string} */ name) => {
+    isLoading = true;
     generalApi
       .get("/" + name)
       .then((res) => {
+        isLoading = false;
         collectionData = res.data;
         workingCollectionData = res.data;
         columns = Object.keys(res.data[0]);
@@ -104,10 +109,11 @@
   };
 
   const onUpdateCollectionData = (/** @type {string} */ id) => {
-    console.log("LOG:::id", id);
+    isLoading = true;
     generalApi
       .put("/" + selectedEntity + "/" + id, updateData)
       .then((res) => {
+        isLoading = false;
         getCollectionData(selectedEntity);
       })
       .catch((er) => {
@@ -116,9 +122,11 @@
   };
 
   const onDeleteCollectionData = (/** @type {string} */ id) => {
+    isLoading = true;
     generalApi
       .delete("/" + selectedEntity + "/" + id)
       .then((res) => {
+        isLoading = false;
         getCollectionData(selectedEntity);
       })
       .catch((er) => {
@@ -131,9 +139,11 @@
       alert("Please enter a name for the entity");
       return;
     }
+    isLoading = true;
     generalApi
       .post("/" + newEnityName, newData)
       .then((res) => {
+        isLoading = false;
         getCollectionData(newEnityName);
         isAdd = false;
       })
@@ -160,6 +170,14 @@
 </script>
 
 <div class="my-8 mx-40 bg-white p-4">
+  {#if isLoading}
+    <div
+      class="absolute top-1/2 left-1/2 transform z-20 -translate-x-1/2 -translate-y-1/2 bg-gray-100 rounded-lg"
+    >
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  {/if}
+
   <div class="flex space-x-2 mb-4">
     <img src="/jabdb.png" width="60" class="rounded-lg" alt="" />
     <h1 class="text-lg font-bold mt-3">JabulaneDB</h1>
@@ -280,16 +298,18 @@
                 <button
                   class="btn btn-sm"
                   on:click={() => onDeleteCollectionData(collection?.id)}
-                  ><Trash />delete</button                                                                                                                                                          
+                  ><Trash />delete</button
                 >
                 <button
                   on:click={() => onUpdateCollectionData(collection?.id)}
                   class="btn btn-sm"><Pencil1 />update</button
                 >
               </div>
-              <pre prefix=""><code on:input={(event)=>{
-                updateData = event?.target?.textContent;
-              }} contenteditable="true"
+              <pre prefix=""><code
+                  on:input={(event) => {
+                    updateData = event?.target?.textContent;
+                  }}
+                  contenteditable="true"
                   >{JSON.stringify(collection, null, "\t")}</code
                 ></pre>
             </div>
