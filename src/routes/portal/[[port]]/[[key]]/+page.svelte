@@ -288,7 +288,7 @@
                 >
               </div>
               <pre prefix=""><code on:input={(event)=>{
-                updateData = event?.target.textContent;
+                updateData = event?.target?.textContent;
               }} contenteditable="true"
                   >{JSON.stringify(collection, null, "\t")}</code
                 ></pre>
